@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,18 +38,18 @@ public class ConfigurationServiceImp implements ConfigurationService {
     @Override
     public ConfigurationDTO findOne(Long id) {
 
-        Configuration configuration = configurationRepository.findOne(id);
+        Optional<Configuration> configuration = configurationRepository.findById(id);
 
-        if (configuration == null)
+        if (!configuration.isPresent())
             throw new EntityNotFoundException("entity.notFound");
 
-        return entityToDTOconverter.convert(configuration);
+        return entityToDTOconverter.convert(configuration.get());
     }
 
     @Override
     public List<ConfigurationDTO> findActiveApplicationsByName(String applicationName) {
 
-        List<Configuration> configurations = configurationRepository.findByApplicationNameAAndIsActive(applicationName,                                                                                                                 Boolean.TRUE);
+        List<Configuration> configurations = configurationRepository.findByApplicationNameAndIsActive(applicationName,                                                                                                                 Boolean.TRUE);
         if (configurations.isEmpty())
             throw new EntityNotFoundException("entity.notFound");
 
@@ -66,13 +67,13 @@ public class ConfigurationServiceImp implements ConfigurationService {
 
         configurationInfoValidator.validate(request);
 
-        Configuration existingEntity = configurationRepository.findOne(id);
+        Optional<Configuration> configuration = configurationRepository.findById(id);
 
-        if (existingEntity == null)
+        if (!configuration.isPresent())
             throw new  EntityNotFoundException("entity.notFound");
 
         Configuration newEntity = dtOtoEntityConverter.convert(request);
-        newEntity.setId(existingEntity.getId());
+        newEntity.setId(configuration.get().getId());
 
         return  entityToDTOconverter.convert(configurationRepository.save(newEntity));
 
@@ -81,20 +82,14 @@ public class ConfigurationServiceImp implements ConfigurationService {
     @Override
     public void delete(Long id) {
 
-        Configuration existingEntity = configurationRepository.findOne(id);
+        Optional<Configuration> configuration = configurationRepository.findById(id);
 
-        if (existingEntity == null)
+        if (!configuration.isPresent())
             throw new EntityNotFoundException("entity.notFound");
 
-        configurationRepository.delete(id);
+        configurationRepository.delete(configuration.get());
 
     }
-
-
-
-
-
-
     @Override
     public List<ConfigurationDTO> findAll() {
         return null;

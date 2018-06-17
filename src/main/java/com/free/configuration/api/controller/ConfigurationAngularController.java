@@ -2,6 +2,7 @@ package com.free.configuration.api.controller;
 
 import com.free.configuration.api.entity.Configuration;
 import com.free.configuration.api.repository.ConfigurationRepository;
+import com.free.configuration.api.service.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +27,12 @@ public class ConfigurationAngularController {
     @Autowired
     private ConfigurationRepository configurationRepository;
 
+    @Autowired
+    private ConfigurationService configurationService;
+
     @GetMapping("/configuration/{id}")
     public ResponseEntity<?> getConfigurationById(@PathVariable Long id){
-        return new ResponseEntity<>(configurationRepository.findOne(id) , HttpStatus.OK);
+        return new ResponseEntity<>(configurationRepository.findById(id) , HttpStatus.OK);
     }
 
     @PostMapping("/configuration")
@@ -43,7 +47,7 @@ public class ConfigurationAngularController {
 
     @GetMapping("/configuration/appname/{appname}")
     public ResponseEntity<?> getAllActiveConfigurationsByApplicationName(@PathVariable String appname){
-        return new ResponseEntity<>(configurationRepository.findByApplicationNameAAndIsActive(appname, Boolean.TRUE) ,                                          HttpStatus.OK);
+        return new ResponseEntity<>(configurationRepository.findByApplicationNameAndIsActive(appname, Boolean.TRUE) ,                                          HttpStatus.OK);
     }
 
     @PutMapping("/configuration/{id}")
@@ -56,7 +60,7 @@ public class ConfigurationAngularController {
     @DeleteMapping("/configuration/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id){
-        configurationRepository.delete(id);
+        configurationService.delete(id);
     }
 
 }
